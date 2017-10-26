@@ -32,22 +32,13 @@ public class SparkMLLinearRegressionDemo {
 		Logger.getLogger("akka").setLevel(Level.ERROR);
 		JavaSparkContext spContext = SparkConnection.getContext();
 		SparkSession spSession = SparkConnection.getSession();
-		
-		/*--------------------------------------------------------------------------
-		Load Data
-		--------------------------------------------------------------------------*/
 		Dataset<Row> autoDf = spSession.read()
 				.option("header","true")
 				.csv("data/auto-miles-per-gallon.csv");
 		autoDf.show(5);
 		autoDf.printSchema();
 		
-		/*--------------------------------------------------------------------------
-		Cleanse Data
-		--------------------------------------------------------------------------*/	
-		//Convert all data types as double; Change missing values to standard ones.
 		
-		//Create the schema for the data to be loaded into Dataset.
 		StructType autoSchema = DataTypes
 				.createStructType(new StructField[] {
 						DataTypes.createStructField("MPG", DataTypes.DoubleType, false),
@@ -60,7 +51,7 @@ public class SparkMLLinearRegressionDemo {
 						DataTypes.createStructField("NAME", DataTypes.StringType, false) 
 					});
 
-		//Broadcast the default value for HP
+		
 		Broadcast<Double> avgHP = spContext.broadcast(80.0);
 		
 		//Change data frame back to RDD
@@ -95,9 +86,6 @@ public class SparkMLLinearRegressionDemo {
 		System.out.println("Transformed Data :");
 		autoCleansedDf.show(5);
 		
-		/*--------------------------------------------------------------------------
-		Analyze Data
-		--------------------------------------------------------------------------*/
 		
 		//Perform correlation analysis
 		for ( StructField field : autoSchema.fields() ) {
@@ -107,11 +95,7 @@ public class SparkMLLinearRegressionDemo {
 			}
 		}
 		
-		/*--------------------------------------------------------------------------
-		Prepare for Machine Learning. 
-		--------------------------------------------------------------------------*/
-		
-		//Convert data to labeled Point structure
+			//Convert data to labeled Point structure
 		JavaRDD<Row> rdd3 = autoCleansedDf.toJavaRDD().repartition(2);
 		
 		JavaRDD<LabeledPoint> rdd4 = rdd3.map( new Function<Row, LabeledPoint>() {
@@ -137,9 +121,6 @@ public class SparkMLLinearRegressionDemo {
 		Dataset<Row> trainingData = splits[0];
 		Dataset<Row> testData = splits[1];
 		
-		/*--------------------------------------------------------------------------
-		Perform machine learning. 
-		--------------------------------------------------------------------------*/	
 		
 		//Create the object
 		LinearRegression lr = new LinearRegression();
@@ -168,7 +149,6 @@ public class SparkMLLinearRegressionDemo {
 		ExerciseUtils.hold();
 	}
 
-    /*Practice : Try Regression with different sets of feature variables
-    and see how regression accuracy varies based on correlation */
+    
 	
 }
