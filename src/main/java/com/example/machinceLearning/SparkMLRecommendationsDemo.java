@@ -37,11 +37,6 @@ public class SparkMLRecommendationsDemo {
 		rawDf.show(5);
 		rawDf.printSchema();
 		
-		/*--------------------------------------------------------------------------
-		Cleanse Data - convert data type
-		--------------------------------------------------------------------------*/	
-		
-		//Create the schema for the data to be loaded into Dataset.
 		StructType ratingsSchema = DataTypes
 				.createStructType(new StructField[] {
 						DataTypes.createStructField("user", DataTypes.IntegerType, false),
@@ -51,7 +46,7 @@ public class SparkMLRecommendationsDemo {
 		
 		JavaRDD<Row> rdd1 = rawDf.toJavaRDD().repartition(2);
 		
-		//Function to map.
+
 		JavaRDD<Row> rdd2 = rdd1.map( new Function<Row, Row>() {
 
 			@Override
@@ -70,10 +65,6 @@ public class SparkMLRecommendationsDemo {
 		Dataset<Row> ratingsDf = spSession.createDataFrame(rdd2, ratingsSchema);
 		System.out.println("Ratings Data: ");
 		ratingsDf.show(5);
-		
-		/*--------------------------------------------------------------------------
-		Perform Machine Learning
-		--------------------------------------------------------------------------*/
 
 		Dataset<Row>[] splits = ratingsDf.randomSplit(new double[]{0.9, 0.1});
 		Dataset<Row> training = splits[0];
@@ -88,13 +79,13 @@ public class SparkMLRecommendationsDemo {
 		
 		ALSModel model = als.fit(training);
 
-		// Evaluate the model by computing the RMSE on the test data
+
 		Dataset<Row> predictions = model.transform(test);
 		
 		System.out.println("Predictions : ");
 		predictions.show();
 		
-		// Keep the program running so we can checkout things.
+
 		com.example.common.utility.ExerciseUtils.hold();
 	}
 
